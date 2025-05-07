@@ -5,7 +5,7 @@ type SidebarProps = {
   projects: Project[];
   selectedProject: Project | null;
   onSelectProject: (project: Project) => void;
-  onAddProject: (name: string, description: string) => void;
+  onAddProject: (name: string, description: string, type: string, initialData: Record<string, any>) => void;
 };
 
 export default function Sidebar({ projects, selectedProject, onSelectProject, onAddProject }: SidebarProps) {
@@ -13,12 +13,14 @@ export default function Sidebar({ projects, selectedProject, onSelectProject, on
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newProjectName, setNewProjectName] = useState("");
   const [newProjectDescription, setNewProjectDescription] = useState("");
+  const [newProjectType, setNewProjectType] = useState("led-control");
 
   const handleAddProject = () => {
-    if (newProjectName.trim() && newProjectDescription.trim()) {
-      onAddProject(newProjectName.trim(), newProjectDescription.trim());
+    if (newProjectName.trim() && newProjectDescription.trim() && newProjectType) {
+      onAddProject(newProjectName.trim(), newProjectDescription.trim(), newProjectType, {});
       setNewProjectName("");
       setNewProjectDescription("");
+      setNewProjectType("led-control");
       setIsModalOpen(false);
     }
   };
@@ -53,9 +55,8 @@ export default function Sidebar({ projects, selectedProject, onSelectProject, on
             {projects.map((project) => (
               <li
                 key={project.id}
-                className={`cursor-pointer hover:bg-gray-700 p-2 rounded ${
-                  selectedProject?.id === project.id ? "bg-gray-700" : ""
-                }`}
+                className={`cursor-pointer hover:bg-gray-700 p-2 rounded ${selectedProject?.id === project.id ? "bg-gray-700" : ""
+                  }`}
                 onClick={() => {
                   onSelectProject(project);
                   setIsSidebarOpen(false);
@@ -85,6 +86,13 @@ export default function Sidebar({ projects, selectedProject, onSelectProject, on
               onChange={(e) => setNewProjectDescription(e.target.value)}
               className="w-full p-2 mb-4 border border-gray-300 rounded text-gray-800"
               rows={3}
+            />
+            <input
+              type="text"
+              placeholder="Type of project"
+              value={newProjectType}
+              onChange={(e) => setNewProjectType(e.target.value)}
+              className="w-full p-2 mb-4 border border-gray-300 rounded text-gray-800"
             />
             <div className="flex justify-end">
               <button

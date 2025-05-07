@@ -10,12 +10,12 @@ export default function Home() {
   const projects = useProjects();
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
-  const handleAddProject = async (name: string, description: string) => {
+  const handleAddProject = async (name: string, description: string, type: string, initialData: Record<string, any> = {}) => {
     try {
       const response = await fetch('/api/projects', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, description }),
+        body: JSON.stringify({ name, description, type, data: initialData }),
       });
       if (!response.ok) {
         throw new Error('Failed to add project');

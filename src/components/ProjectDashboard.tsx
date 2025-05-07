@@ -1,19 +1,32 @@
-import { Project } from "@/types/types";
+import { Project } from '@/types/types';
+import LEDControlDashboard from './dashboards/LEDControlDashboard';
 
-type ProjectDashboardProps = {
-  selectedProject: Project | null;
+interface ProjectDashboardProps {
+    selectedProject: Project | null;
+}
+
+const dashboardMap: Record<string, React.ComponentType<{ project: Project }>> = {
+    'led-control': LEDControlDashboard,
+    // Add other project types and their corresponding dashboards
 };
 
 export default function ProjectDashboard({ selectedProject }: ProjectDashboardProps) {
-  if (!selectedProject) {
-    return <div className="text-center text-gray-500">Select a project to view its dashboard</div>;
-  }
+    console.log('Selected Project:', selectedProject);
 
-  return (
-    <div>
-      <h1 className="text-2xl font-bold mb-4">{selectedProject.name} Dashboard</h1>
-      <p>Project ID: {selectedProject.id}</p>
-      {/* Add more project-specific information and controls here */}
-    </div>
-  );
+    if (!selectedProject) {
+        return <div>No project selected. Please select a project from the sidebar.</div>;
+    }
+
+    const DashboardComponent = dashboardMap[selectedProject.type];
+
+    if (!DashboardComponent) {
+        return (
+            <div>
+                Project Title: {selectedProject.name} <br />
+                Description: {selectedProject?.description}
+            </div>
+        );
+    }
+
+    return <DashboardComponent project={selectedProject} />;
 }
