@@ -3,22 +3,28 @@
 import { useState } from "react";
 import Sidebar from "@/components/Sidebar";
 import ProjectDashboard from "@/components/ProjectDashboard";
+import { useProjects } from "@/hooks/useProjects";
 import { Project } from "@/types/types";
 
 export default function Home() {
-  const [projects, setProjects] = useState<Project[]>([
-    { id: 1, name: "Project 1" },
-    { id: 2, name: "Project 2" },
-    { id: 3, name: "Project 3" },
-  ]);
+  const projects = useProjects();
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
-  const handleAddProject = () => {
-    const newProject: Project = {
-      id: projects.length + 1,
-      name: `New Project ${projects.length + 1}`,
-    };
-    setProjects([...projects, newProject]);
+  const handleAddProject = async (name: string, description: string) => {
+    try {
+      const response = await fetch('/api/projects', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, description }),
+      });
+      if (!response.ok) {
+        throw new Error('Failed to add project');
+      }
+      const newProject = await response.json();
+      console.log('New project added:', newProject);
+    } catch (error) {
+      console.error('Error adding project:', error);
+    }
   };
 
   return (
