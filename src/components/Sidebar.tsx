@@ -1,29 +1,17 @@
-import { useState } from "react";
-import { Project } from "@/types/types";
+import React, { useState } from 'react';
+import { Project } from '@/types/Project';
+import { ProjectCreationModal } from './modal/ProjectCreationModal';
 
-type SidebarProps = {
+interface SidebarProps {
   projects: Project[];
   selectedProject: Project | null;
   onSelectProject: (project: Project) => void;
-  onAddProject: (name: string, description: string, type: string, initialData: Record<string, any>) => void;
-};
+  onAddProject: (name: string, description: string, initialData?: Record<string, any>) => Promise<void>;
+}
 
 export default function Sidebar({ projects, selectedProject, onSelectProject, onAddProject }: SidebarProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [newProjectName, setNewProjectName] = useState("");
-  const [newProjectDescription, setNewProjectDescription] = useState("");
-  const [newProjectType, setNewProjectType] = useState("led-control");
-
-  const handleAddProject = () => {
-    if (newProjectName.trim() && newProjectDescription.trim() && newProjectType) {
-      onAddProject(newProjectName.trim(), newProjectDescription.trim(), newProjectType, {});
-      setNewProjectName("");
-      setNewProjectDescription("");
-      setNewProjectType("led-control");
-      setIsModalOpen(false);
-    }
-  };
 
   return (
     <>
@@ -69,48 +57,11 @@ export default function Sidebar({ projects, selectedProject, onSelectProject, on
         </div>
       </aside>
 
-      {isModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg w-96">
-            <h2 className="text-xl font-bold mb-4 text-gray-800">Create New Project</h2>
-            <input
-              type="text"
-              placeholder="Project Name"
-              value={newProjectName}
-              onChange={(e) => setNewProjectName(e.target.value)}
-              className="w-full p-2 mb-4 border border-gray-300 rounded text-gray-800"
-            />
-            <textarea
-              placeholder="Project Description"
-              value={newProjectDescription}
-              onChange={(e) => setNewProjectDescription(e.target.value)}
-              className="w-full p-2 mb-4 border border-gray-300 rounded text-gray-800"
-              rows={3}
-            />
-            <input
-              type="text"
-              placeholder="Type of project"
-              value={newProjectType}
-              onChange={(e) => setNewProjectType(e.target.value)}
-              className="w-full p-2 mb-4 border border-gray-300 rounded text-gray-800"
-            />
-            <div className="flex justify-end">
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="mr-2 px-4 py-2 text-gray-600 hover:text-gray-800"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleAddProject}
-                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-              >
-                Create
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ProjectCreationModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onAddProject={onAddProject}
+      />
     </>
   );
 }
