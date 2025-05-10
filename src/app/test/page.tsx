@@ -1,27 +1,38 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { db } from '@/utils/firebase';
-import { doc, setDoc } from 'firebase/firestore';
+import { ref, set, onValue } from 'firebase/database';
 
 export default function TestPage() {
   const [led1State, setLed1State] = useState(false);
   const [led2State, setLed2State] = useState(false);
 
+  // Listen to LED states from Firebase
+  useEffect(() => {
+    const ledRef = ref(db, 'test/esp32_device');
+    const unsubscribe = onValue(ledRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        setLed1State(!!data.led1);
+        setLed2State(!!data.led2);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
   const toggleLED = async (ledNumber: number) => {
     const newState = ledNumber === 1 ? !led1State : !led2State;
     
     try {
-      await setDoc(doc(db, 'test', 'esp32_device'), {
-        [`led${ledNumber}`]: newState,
+      // Update both LED states at once to maintain the other LED's state
+      await set(ref(db, 'test/esp32_device'), {
+        led1: ledNumber === 1 ? newState : led1State,
+        led2: ledNumber === 2 ? newState : led2State,
         lastUpdated: new Date().toISOString()
-      }, { merge: true });
+      });
 
-      if (ledNumber === 1) {
-        setLed1State(newState);
-      } else {
-        setLed2State(newState);
-      }
       console.log(`LED ${ledNumber} toggled to ${newState}`);
     } catch (error) {
       console.error('Error updating LED state:', error);
